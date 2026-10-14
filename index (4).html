@@ -1,0 +1,887 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Creative Writing Test – The Submarine</title>
+<style>
+:root{
+  --deep:#031a33; --ocean:#06407a; --sea:#0b79b8; --aqua:#22c3d6; --foam:#e8f8fc;
+  --gold:#ffc53d; --coral:#ff6b6b; --ink:#0b2540; --muted:#5a7189; --line:#d6e6f0;
+  --good:#16a34a; --warn:#f59e0b; --bad:#e11d48;
+  --sight:#2563eb; --sound:#9333ea; --touch:#ea580c; --smell:#16a34a; --taste:#db2777;
+  --radius:20px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0; min-height:100vh; color:var(--ink);
+  font-family:"Trebuchet MS","Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  background:linear-gradient(180deg,#0e6fb0 0%,#0a4f94 28%,#06305f 60%,#031a33 100%) fixed;
+  line-height:1.55; -webkit-font-smoothing:antialiased;
+}
+
+/* ===== Underwater background ===== */
+.scene{position:fixed; inset:0; overflow:hidden; pointer-events:none; z-index:0}
+.rays{position:absolute; top:-10%; left:-10%; width:120%; height:80%;
+  background:
+   conic-gradient(from 195deg at 30% -10%, transparent 0 8%, rgba(255,255,255,.12) 10%, transparent 13% 20%, rgba(255,255,255,.09) 23%, transparent 27% 40%, rgba(255,255,255,.1) 43%, transparent 47%),
+   conic-gradient(from 190deg at 75% -15%, transparent 0 10%, rgba(255,255,255,.1) 13%, transparent 17% 30%, rgba(255,255,255,.08) 34%, transparent 38%);
+  animation:sway 14s ease-in-out infinite alternate; transform-origin:50% 0; filter:blur(2px)}
+@keyframes sway{from{transform:rotate(-2deg)}to{transform:rotate(2.5deg)}}
+.bubble{position:absolute; bottom:-60px; border-radius:50%;
+  background:radial-gradient(circle at 30% 30%, rgba(255,255,255,.75), rgba(255,255,255,.12) 60%, rgba(255,255,255,.05));
+  border:1px solid rgba(255,255,255,.35); animation:rise linear infinite}
+@keyframes rise{0%{transform:translateY(0) translateX(0);opacity:0}10%{opacity:.9}50%{transform:translateY(-55vh) translateX(18px)}100%{transform:translateY(-115vh) translateX(-14px);opacity:0}}
+.sub-silhouette{position:absolute; bottom:9%; left:-30%; width:260px; opacity:.16; animation:cruise 55s linear infinite}
+@keyframes cruise{to{left:115%}}
+.waves{position:absolute; left:0; bottom:0; width:200%; height:120px; opacity:.35; animation:slide 18s linear infinite}
+.waves.w2{opacity:.22; height:150px; animation-duration:28s; animation-direction:reverse}
+@keyframes slide{to{transform:translateX(-50%)}}
+@media (prefers-reduced-motion:reduce){.rays,.bubble,.sub-silhouette,.waves{animation:none}}
+
+/* ===== Layout ===== */
+.wrap{position:relative; z-index:1; max-width:1040px; margin:0 auto; padding:22px 16px 70px}
+.hero{text-align:center; color:#fff; padding:34px 10px 26px}
+.badge{display:inline-flex; gap:8px; align-items:center; padding:7px 18px; border-radius:999px;
+  background:rgba(255,255,255,.14); border:1px solid rgba(255,255,255,.35); backdrop-filter:blur(8px);
+  font-weight:700; letter-spacing:.14em; text-transform:uppercase; font-size:.78rem}
+.hero h1{margin:16px 0 6px; font-size:clamp(2rem,6vw,3.5rem); line-height:1.08; letter-spacing:-.01em;
+  text-shadow:0 6px 30px rgba(0,20,60,.5)}
+.hero h1 span{background:linear-gradient(90deg,var(--gold),#ffe29a,var(--aqua)); -webkit-background-clip:text; background-clip:text; color:transparent}
+.hero p{margin:0 auto; max-width:620px; opacity:.92; font-size:1.05rem}
+
+.card{background:rgba(255,255,255,.94); border-radius:var(--radius); padding:24px;
+  box-shadow:0 18px 50px rgba(0,15,45,.35); border:1px solid rgba(255,255,255,.6); margin-bottom:20px}
+.glass{background:rgba(255,255,255,.12); backdrop-filter:blur(12px); border:1px solid rgba(255,255,255,.28); color:#fff;
+  box-shadow:0 10px 36px rgba(0,15,45,.3)}
+h2{margin:0 0 4px; font-size:1.3rem}
+.sub{color:var(--muted); margin:0 0 16px; font-size:.95rem}
+.sec-title{display:flex; align-items:center; gap:10px; margin-bottom:14px}
+.sec-title .ico{width:40px; height:40px; border-radius:12px; display:grid; place-items:center; font-size:1.25rem;
+  background:linear-gradient(135deg,var(--aqua),var(--sea)); color:#fff; box-shadow:0 6px 14px rgba(11,121,184,.35)}
+
+/* Student info */
+.info{display:grid; grid-template-columns:2fr 1fr; gap:14px}
+label.f{display:block; font-size:.78rem; font-weight:800; text-transform:uppercase; letter-spacing:.09em; color:var(--muted); margin-bottom:6px}
+input[type=text],input[type=date],input[type=number],textarea{
+  width:100%; font:inherit; color:var(--ink); background:#f5fbfe; border:2px solid var(--line); border-radius:12px; padding:12px 14px; outline:none; transition:.2s}
+input:focus,textarea:focus{border-color:var(--sea); box-shadow:0 0 0 4px rgba(34,195,214,.22); background:#fff}
+input.err{border-color:var(--bad); box-shadow:0 0 0 4px rgba(225,29,72,.15)}
+.errmsg{color:var(--bad); font-size:.85rem; font-weight:700; margin-top:6px; display:none}
+
+/* Task */
+.task{display:grid; grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr); gap:22px; align-items:center}
+.prompt{background:linear-gradient(135deg,#fff8e1,#fff1c4); border-left:6px solid var(--gold); border-radius:14px; padding:18px 20px; font-size:1.08rem}
+.prompt .tag{display:inline-block; background:var(--ink); color:var(--gold); font-weight:800; font-size:.72rem; letter-spacing:.12em;
+  padding:4px 10px; border-radius:999px; margin-bottom:10px; text-transform:uppercase}
+.prompt b{color:#b45309}
+figure{margin:0; text-align:center}
+figure img,figure svg.subpics{width:100%; max-width:380px; border-radius:16px; box-shadow:0 12px 30px rgba(3,26,51,.35); border:4px solid #fff; background:#fff; display:block; margin:0 auto}
+figcaption{font-size:.82rem; color:var(--muted); margin-top:8px}
+
+/* Guide */
+.guide{display:grid; grid-template-columns:repeat(auto-fit,minmax(210px,1fr)); gap:12px}
+.g{border-radius:16px; padding:16px; color:#fff; position:relative; overflow:hidden}
+.g h3{margin:0 0 6px; font-size:1rem}
+.g p{margin:0; font-size:.9rem; opacity:.96}
+.g .n{position:absolute; right:10px; top:2px; font-size:3rem; font-weight:900; opacity:.18}
+.g1{background:linear-gradient(135deg,#0ea5e9,#2563eb)}
+.g2{background:linear-gradient(135deg,#14b8a6,#0891b2)}
+.g3{background:linear-gradient(135deg,#8b5cf6,#6366f1)}
+.g4{background:linear-gradient(135deg,#f59e0b,#ea580c)}
+.senses{display:grid; grid-template-columns:repeat(auto-fit,minmax(170px,1fr)); gap:10px; margin-top:14px}
+.sense{border-radius:14px; padding:12px 14px; background:#fff; border:2px solid var(--line); font-size:.88rem}
+.sense b{display:block; margin-bottom:2px}
+.sense.s1{border-color:var(--sight)} .sense.s1 b{color:var(--sight)}
+.sense.s2{border-color:var(--sound)} .sense.s2 b{color:var(--sound)}
+.sense.s3{border-color:var(--touch)} .sense.s3 b{color:var(--touch)}
+.sense.s4{border-color:var(--smell)} .sense.s4 b{color:var(--smell)}
+.sense.s5{border-color:var(--taste)} .sense.s5 b{color:var(--taste)}
+
+/* Writing area */
+.toolbar{display:flex; flex-wrap:wrap; gap:12px; align-items:center; justify-content:space-between; margin-bottom:12px}
+.pill{display:inline-flex; align-items:center; gap:8px; background:var(--foam); border:1px solid var(--line); padding:7px 14px; border-radius:999px; font-weight:700; font-size:.9rem}
+#savedPill{opacity:0; transition:opacity .35s; background:#ecfdf3; border-color:#bbf7d0; color:#166534}
+#savedPill.show{opacity:1}
+#essay{
+  min-height:440px; resize:vertical; font-family:Georgia,"Times New Roman",serif; font-size:1.12rem; line-height:32px; padding:0 18px 14px;
+  background-color:#fffdf6;
+  background-image:linear-gradient(90deg,transparent 0 46px,rgba(239,68,68,.35) 46px 48px,transparent 48px),
+                   repeating-linear-gradient(transparent 0 31px,#cfe3f1 31px 32px);
+  background-attachment:local; padding-left:62px; border-color:#cfe3f1}
+.meter{height:12px; border-radius:99px; background:#e3eef5; overflow:hidden; margin:12px 0 6px; position:relative}
+.meter i{position:absolute; left:0; top:0; bottom:0; width:0; border-radius:99px; background:var(--warn); transition:width .25s, background .25s}
+.meter .zone{position:absolute; top:0; bottom:0; left:75%; width:25%; background:repeating-linear-gradient(45deg,rgba(22,163,74,.25) 0 6px,transparent 6px 12px)}
+.meter-note{font-size:.88rem; color:var(--muted); display:flex; justify-content:space-between; gap:10px; flex-wrap:wrap}
+.btn{font:inherit; font-weight:800; border:0; cursor:pointer; border-radius:14px; padding:14px 26px; transition:.2s; display:inline-flex; align-items:center; gap:8px; justify-content:center}
+.btn.primary{background:linear-gradient(135deg,var(--aqua),var(--sea) 55%,var(--ocean)); color:#fff; box-shadow:0 10px 24px rgba(11,121,184,.45); font-size:1.08rem}
+.btn.primary:hover{transform:translateY(-2px); box-shadow:0 14px 30px rgba(11,121,184,.55)}
+.btn.ghost{background:#fff; color:var(--ocean); border:2px solid var(--line)}
+.btn.ghost:hover{border-color:var(--sea)}
+.btn.gold{background:linear-gradient(135deg,#ffd45e,var(--gold)); color:#4a3300}
+.actions{display:flex; gap:12px; flex-wrap:wrap; justify-content:flex-end; margin-top:16px}
+
+/* Modal */
+.modal{position:fixed; inset:0; z-index:50; display:none; align-items:center; justify-content:center; background:rgba(2,16,34,.65); backdrop-filter:blur(5px); padding:18px}
+.modal.open{display:flex}
+.dialog{background:#fff; border-radius:22px; padding:28px; max-width:440px; width:100%; text-align:center; box-shadow:0 30px 80px rgba(0,0,0,.5); animation:pop .25s ease}
+@keyframes pop{from{transform:scale(.92); opacity:0}to{transform:none; opacity:1}}
+.dialog .big{font-size:3rem}
+.dialog h3{margin:8px 0}
+.dialog p{color:var(--muted); margin:0 0 18px}
+.dialog .row{display:flex; gap:10px; justify-content:center; flex-wrap:wrap}
+
+/* ===== Results ===== */
+#result{display:none}
+.sheet-head{display:grid; grid-template-columns:auto 1fr; gap:26px; align-items:center}
+.ring{position:relative; width:190px; height:190px}
+.ring svg{width:100%; height:100%; display:block; transform:rotate(-90deg)}
+.ring .bg{stroke:#e2eef5}
+.ring .fg{stroke-linecap:round; transition:stroke-dashoffset 1.2s cubic-bezier(.2,.8,.2,1), stroke .4s}
+.ring .mid{position:absolute; inset:0; display:grid; place-content:center; text-align:center}
+.ring .mid b{font-size:2.5rem; line-height:1}
+.ring .mid small{color:var(--muted); font-weight:700}
+.meta{display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:10px}
+.meta div{background:var(--foam); border-radius:12px; padding:10px 14px}
+.meta small{display:block; color:var(--muted); font-weight:800; text-transform:uppercase; letter-spacing:.08em; font-size:.68rem}
+.meta b{font-size:1.05rem; word-break:break-word}
+.gradebox{display:flex; align-items:center; gap:14px; margin-top:14px; flex-wrap:wrap}
+.grade{font-size:2.4rem; font-weight:900; width:70px; height:70px; border-radius:18px; display:grid; place-items:center; color:#fff}
+.gA{background:linear-gradient(135deg,#22c55e,#15803d)} .gB{background:linear-gradient(135deg,#3b82f6,#1d4ed8)}
+.gC{background:linear-gradient(135deg,#06b6d4,#0e7490)} .gD{background:linear-gradient(135deg,#f59e0b,#b45309)}
+.gE{background:linear-gradient(135deg,#fb923c,#c2410c)} .gF{background:linear-gradient(135deg,#f43f5e,#be123c)}
+.gradebox .txt b{font-size:1.2rem; display:block}
+.gradebox .txt span{color:var(--muted)}
+
+table{width:100%; border-collapse:separate; border-spacing:0; font-size:.95rem}
+th{background:var(--ocean); color:#fff; text-align:left; padding:11px 12px; font-size:.78rem; text-transform:uppercase; letter-spacing:.08em}
+th:first-child{border-radius:12px 0 0 0} th:last-child{border-radius:0 12px 0 0}
+td{padding:11px 12px; border-bottom:1px solid var(--line); vertical-align:middle}
+tr:nth-child(even) td{background:#f4fafd}
+td.c,th.c{text-align:center}
+tfoot td{font-weight:900; background:#e6f6fb !important; font-size:1.05rem; border-bottom:0}
+tfoot td:first-child{border-radius:0 0 0 12px} tfoot td:last-child{border-radius:0 0 12px 0}
+.mini{height:8px; background:#e3eef5; border-radius:9px; overflow:hidden; margin-top:6px; min-width:80px}
+.mini i{display:block; height:100%; border-radius:9px}
+input.sc{width:78px; text-align:center; font-weight:800; padding:8px; border-radius:10px; background:#fff}
+.note{font-size:.85rem; color:var(--muted)}
+
+.crit{display:grid; grid-template-columns:repeat(auto-fit,minmax(310px,1fr)); gap:14px}
+.cc{border:2px solid var(--line); border-radius:16px; padding:16px; background:#fff}
+.cc header{display:flex; justify-content:space-between; align-items:center; gap:10px; margin-bottom:6px}
+.cc header b{font-size:1.02rem}
+.cc .pts{font-weight:900; padding:4px 12px; border-radius:99px; background:var(--foam); color:var(--ocean); white-space:nowrap}
+.cc ul{list-style:none; padding:0; margin:10px 0 0}
+.cc li{padding:5px 0 5px 28px; position:relative; font-size:.9rem}
+.cc li::before{content:"✔"; position:absolute; left:0; top:5px; width:20px; height:20px; border-radius:50%; background:#dcfce7; color:var(--good); font-size:.7rem; display:grid; place-items:center; font-weight:900}
+.cc li.no::before{content:"✖"; background:#ffe4e6; color:var(--bad)}
+.chips{display:flex; flex-wrap:wrap; gap:6px; margin-top:6px}
+.chip{padding:3px 10px; border-radius:99px; font-size:.78rem; font-weight:700; color:#fff}
+.chip.sight{background:var(--sight)} .chip.sound{background:var(--sound)} .chip.touch{background:var(--touch)}
+.chip.smell{background:var(--smell)} .chip.taste{background:var(--taste)} .chip.gen{background:var(--sea)}
+
+.two{display:grid; grid-template-columns:1fr 1fr; gap:14px}
+.box{border-radius:16px; padding:16px}
+.box.s{background:#ecfdf3; border:1px solid #bbf7d0} .box.w{background:#fff7e6; border:1px solid #fde1a6}
+.box h3{margin:0 0 8px; font-size:1rem}
+.box ul{margin:0; padding-left:20px; font-size:.92rem}
+.stats{display:grid; grid-template-columns:repeat(auto-fit,minmax(130px,1fr)); gap:10px; margin-bottom:14px}
+.stat{background:linear-gradient(135deg,#f0fbff,#e1f3fa); border-radius:14px; padding:12px; text-align:center}
+.stat b{display:block; font-size:1.5rem; color:var(--ocean)}
+.stat small{color:var(--muted); font-weight:700}
+.essay-view{font-family:Georgia,serif; font-size:1.05rem; line-height:1.9; background:#fffdf6; border:2px solid #efe6c8; border-radius:14px; padding:18px 20px; white-space:pre-wrap; word-wrap:break-word}
+.essay-view mark{padding:1px 4px; border-radius:6px; color:#fff; font-weight:600}
+mark.sight{background:var(--sight)} mark.sound{background:var(--sound)} mark.touch{background:var(--touch)}
+mark.smell{background:var(--smell)} mark.taste{background:var(--taste)}
+.legend{display:flex; flex-wrap:wrap; gap:8px; margin:0 0 12px}
+textarea.remark{min-height:90px; resize:vertical}
+.sign{display:grid; grid-template-columns:1fr 1fr; gap:30px; margin-top:26px}
+.sign div{border-top:2px solid var(--ink); padding-top:6px; font-size:.82rem; color:var(--muted); font-weight:700; text-transform:uppercase; letter-spacing:.08em}
+.footer-actions{display:flex; gap:12px; flex-wrap:wrap; justify-content:center; margin-top:8px}
+
+@media (max-width:760px){
+  .info,.task,.two,.sheet-head{grid-template-columns:1fr}
+  .sheet-head{justify-items:center; text-align:center}
+  .ring{width:170px;height:170px}
+  .card{padding:18px}
+  th,td{padding:9px 8px; font-size:.85rem}
+  input.sc{width:62px}
+  .hide-m{display:none}
+  .gradebox{justify-content:center}
+}
+
+/* ===== Print ===== */
+@media print{
+  body{background:#fff !important}
+  .scene,.hero,.modal,.noprint,.footer-actions{display:none !important}
+  body.submitted #test{display:none !important}
+  body:not(.submitted) #test{display:block !important}
+  body.submitted #result{display:block !important}
+  .wrap{padding:0; max-width:none}
+  .card{box-shadow:none; border:1px solid #ccc; break-inside:avoid; background:#fff}
+  *{-webkit-print-color-adjust:exact; print-color-adjust:exact}
+  input.sc{border:0; background:transparent; width:auto; font-size:1rem}
+  textarea.remark{border:1px solid #ccc}
+  .ring .fg{transition:none}
+}
+</style>
+</head>
+<body>
+
+<!-- Animated underwater scene -->
+<div class="scene" aria-hidden="true">
+  <div class="rays"></div>
+  <svg class="sub-silhouette" viewBox="0 0 300 100"><g fill="#fff"><ellipse cx="150" cy="62" rx="140" ry="26"/><rect x="120" y="22" width="50" height="34" rx="9"/><rect x="146" y="6" width="4" height="20"/><rect x="156" y="10" width="3" height="16"/><path d="M280 62l16-22 6 4-8 18 8 18-6 4z"/></g></svg>
+  <svg class="waves" viewBox="0 0 1200 120" preserveAspectRatio="none"><path fill="#7fd6ea" d="M0 60 Q150 10 300 60 T600 60 T900 60 T1200 60 V120 H0z"/></svg>
+  <svg class="waves w2" viewBox="0 0 1200 120" preserveAspectRatio="none"><path fill="#1d8fc7" d="M0 70 Q150 110 300 70 T600 70 T900 70 T1200 70 V120 H0z"/></svg>
+</div>
+
+<div class="wrap">
+
+  <header class="hero">
+    <span class="badge">📝 Mid-Term Test</span>
+    <h1>Creative <span>Writing</span></h1>
+    <p>Dive in, use your five senses, and describe the submarine so well that your reader can see, hear and feel it!</p>
+  </header>
+
+  <!-- ================= TEST VIEW ================= -->
+  <main id="test">
+
+    <section class="card">
+      <div class="sec-title"><div class="ico">🧑‍🎓</div><div><h2>Student Details</h2><p class="sub" style="margin:0">Fill in before you begin writing.</p></div></div>
+      <div class="info">
+        <div>
+          <label class="f" for="name">Full Name</label>
+          <input type="text" id="name" placeholder="Type your full name" autocomplete="off" maxlength="80">
+          <div class="errmsg" id="nameErr">Please enter your name before submitting.</div>
+        </div>
+        <div>
+          <label class="f" for="date">Date</label>
+          <input type="date" id="date">
+        </div>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="sec-title"><div class="ico">⚓</div><div><h2>The Task</h2><p class="sub" style="margin:0">Read the question and study the pictures carefully.</p></div></div>
+      <div class="task">
+        <div class="prompt">
+          <span class="tag">Descriptive Essay</span>
+          <p style="margin:0">Imagine you are standing on the deck of a big submarine just before it dives into the deep blue sea. Write a descriptive essay of about <b>150–200 words</b> telling your reader exactly what the submarine <b>looks like</b>, <b>sounds like</b>, and <b>feels like</b>. Use your <b>five senses</b> so your reader can picture it clearly.</p>
+        </div>
+        <figure>
+          <svg class="subpics" viewBox="0 0 384 190" role="img" aria-label="Three pictures of a submarine: on the surface with the crew on deck, diving underwater among light rays, and a side view of the grey hull with its conning tower">
+            <defs>
+              <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0" stop-color="#c6ecff"/><stop offset="1" stop-color="#7fc9ea"/>
+              </linearGradient>
+              <linearGradient id="sea" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0" stop-color="#1d8fc7"/><stop offset="1" stop-color="#06305f"/>
+              </linearGradient>
+              <linearGradient id="hull" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0" stop-color="#9aa6b2"/><stop offset=".45" stop-color="#5c6874"/><stop offset="1" stop-color="#333c46"/>
+              </linearGradient>
+              <radialGradient id="beam" cx="0.5" cy="0" r="0.9">
+                <stop offset="0" stop-color="#ffffff" stop-opacity="0.5"/><stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
+              </radialGradient>
+              <clipPath id="p1"><rect x="0" y="0" width="120" height="190" rx="10"/></clipPath>
+              <clipPath id="p2"><rect x="132" y="0" width="120" height="190" rx="10"/></clipPath>
+              <clipPath id="p3"><rect x="264" y="0" width="120" height="190" rx="10"/></clipPath>
+            </defs>
+
+            <!-- Panel 1: on the surface with crew on deck -->
+            <g clip-path="url(#p1)">
+              <rect width="120" height="190" fill="url(#sky)"/>
+              <circle cx="94" cy="30" r="14" fill="#ffe08a"/>
+              <rect y="108" width="120" height="82" fill="url(#sea)"/>
+              <ellipse cx="58" cy="116" rx="50" ry="14" fill="url(#hull)"/>
+              <rect x="44" y="92" width="22" height="20" rx="4" fill="#4b5661"/>
+              <rect x="52" y="80" width="3" height="14" fill="#3a444e"/>
+              <rect x="58" y="84" width="2" height="10" fill="#3a444e"/>
+              <g fill="#12212f">
+                <circle cx="30" cy="91" r="3.2"/><rect x="27.5" y="94" width="5" height="9" rx="2.4"/>
+                <circle cx="72" cy="91" r="3.2"/><rect x="69.5" y="94" width="5" height="9" rx="2.4"/>
+                <circle cx="84" cy="92.5" r="2.6"/><rect x="82.2" y="95" width="4" height="8" rx="2"/>
+              </g>
+              <path d="M0 122 Q15 116 30 122 T60 122 T90 122 T120 122" fill="none" stroke="#eaf9ff" stroke-width="2.4" opacity=".85"/>
+            </g>
+
+            <!-- Panel 2: diving underwater among light rays -->
+            <g clip-path="url(#p2)">
+              <rect x="132" width="120" height="190" fill="url(#sea)"/>
+              <path d="M152 0 L178 190 L120 190 L138 0 Z" fill="url(#beam)"/>
+              <path d="M228 0 L254 190 L204 190 L216 0 Z" fill="url(#beam)"/>
+              <ellipse cx="196" cy="120" rx="44" ry="13" fill="url(#hull)"/>
+              <rect x="186" y="98" width="18" height="18" rx="4" fill="#4b5661"/>
+              <circle cx="176" cy="120" r="3" fill="#ffd45e"/>
+              <circle cx="190" cy="120" r="2.5" fill="#8fd8ea"/>
+              <circle cx="205" cy="120" r="2.5" fill="#8fd8ea"/>
+              <g fill="#ffd45e" opacity=".9">
+                <circle cx="160" cy="60" r="2.4"/><circle cx="238" cy="46" r="2"/>
+                <circle cx="222" cy="150" r="2.2"/><circle cx="164" cy="164" r="1.8"/>
+              </g>
+              <g fill="#0d3f6b" opacity=".5">
+                <path d="M144 82 q8-6 16 0 q-8 6-16 0z"/>
+                <path d="M240 96 q8-6 16 0 q-8 6-16 0z"/>
+              </g>
+            </g>
+
+            <!-- Panel 3: side view / diagram -->
+            <g clip-path="url(#p3)">
+              <rect x="264" width="120" height="190" fill="#e8f4fb"/>
+              <ellipse cx="324" cy="96" rx="54" ry="17" fill="url(#hull)"/>
+              <rect x="310" y="68" width="24" height="28" rx="5" fill="#5c6874"/>
+              <rect x="318" y="52" width="3" height="18" fill="#3a444e"/>
+              <rect x="324.5" y="56" width="2.5" height="14" fill="#3a444e"/>
+              <g fill="#bfe9ff" stroke="#2b343d" stroke-width="1.5">
+                <circle cx="292" cy="96" r="4.5"/><circle cx="306" cy="96" r="4.5"/>
+                <circle cx="340" cy="96" r="4.5"/><circle cx="354" cy="96" r="4.5"/>
+              </g>
+              <rect x="266" y="90" width="6" height="12" rx="2" fill="#2b343d"/>
+              <rect x="374" y="82" width="6" height="28" rx="2" fill="#2b343d"/>
+              <path d="M264 130 h120" stroke="#9ec9e0" stroke-width="1.5" stroke-dasharray="5 4"/>
+            </g>
+
+            <g fill="none" stroke="#ffffff" stroke-width="2" opacity=".85">
+              <rect x="1" y="1" width="118" height="188" rx="10"/>
+              <rect x="133" y="1" width="118" height="188" rx="10"/>
+              <rect x="265" y="1" width="118" height="188" rx="10"/>
+            </g>
+          </svg>
+          <figcaption>Study the submarine pictures to help your imagination.</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="sec-title"><div class="ico">🧭</div><div><h2>Writing Guide &amp; Structure</h2><p class="sub" style="margin:0">Follow these four parts to organise your essay.</p></div></div>
+      <div class="guide">
+        <div class="g g1"><span class="n">1</span><h3>Introduction</h3><p>Tell what you are describing and where you saw it.</p></div>
+        <div class="g g2"><span class="n">2</span><h3>Body</h3><p>Describe the outside first (shape, color, conning tower), then the inside (portholes, dials, crew).</p></div>
+        <div class="g g3"><span class="n">3</span><h3>Conclusion</h3><p>Say how you feel about the submarine and the adventure ahead.</p></div>
+        <div class="g g4"><span class="n">★</span><h3>Helpful Clues &amp; Senses</h3><p>Use the sense clues below to make your writing come alive.</p></div>
+      </div>
+      <div class="senses">
+        <div class="sense s1"><b>👁️ See</b>shiny metal, blinking lights, blue water</div>
+        <div class="sense s2"><b>👂 Hear</b>humming engine, soft sonar “ping”</div>
+        <div class="sense s3"><b>✋ Feel</b>cool metal walls, gentle rocking</div>
+        <div class="sense s4"><b>👃 Smell</b>think about the sea air and the engine</div>
+        <div class="sense s5"><b>👅 Taste</b>think about the salty spray</div>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="sec-title"><div class="ico">✍️</div><div><h2>Write Your Essay</h2><p class="sub" style="margin:0">Press <b>Enter</b> to start a new paragraph.</p></div></div>
+      <div class="toolbar">
+        <span class="pill">📖 <span id="wc">0</span> words</span>
+        <span class="pill">⏱️ Time: <span id="timer">00:00</span></span>
+        <span class="pill" id="savedPill">💾 Draft saved</span>
+      </div>
+      <textarea id="essay" spellcheck="false" autocomplete="off" autocapitalize="sentences" placeholder="Start writing here…"></textarea>
+      <div class="meter" aria-hidden="true"><i id="bar"></i><div class="zone"></div></div>
+      <div class="meter-note"><span id="wmsg">Target: 150–200 words</span><span>Target zone ▨</span></div>
+      <div class="actions">
+        <button class="btn ghost" id="clearBtn" type="button">🧹 Clear</button>
+        <button class="btn primary" id="submitBtn" type="button">🚀 Submit Essay</button>
+      </div>
+    </section>
+  </main>
+
+  <!-- ================= RESULT VIEW ================= -->
+  <section id="result" aria-live="polite">
+
+    <div class="card">
+      <div class="sec-title"><div class="ico">🏆</div><div><h2>Score Sheet</h2><p class="sub" style="margin:0">Creative Writing · Mid-Term Test · The Submarine</p></div></div>
+      <div class="sheet-head">
+        <div class="ring">
+          <svg viewBox="0 0 190 190">
+            <circle class="bg" cx="95" cy="95" r="82" fill="none" stroke-width="16"/>
+            <circle class="fg" id="ringFg" cx="95" cy="95" r="82" fill="none" stroke-width="16" stroke="#16a34a" stroke-dasharray="515.2" stroke-dashoffset="515.2"/>
+          </svg>
+          <div class="mid"><b id="ringTotal">0</b><small>out of 50</small></div>
+        </div>
+        <div>
+          <div class="meta">
+            <div><small>Student</small><b id="rName">–</b></div>
+            <div><small>Date</small><b id="rDate">–</b></div>
+            <div><small>Time spent</small><b id="rTime">–</b></div>
+            <div><small>Percentage</small><b id="rPct">–</b></div>
+          </div>
+          <div class="gradebox">
+            <div class="grade" id="gradeBadge">A</div>
+            <div class="txt"><b id="gradeWord">Excellent</b><span id="gradeMsg"></span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Marking Summary</h2>
+      <p class="sub">The computer has marked each part automatically. Teachers can moderate any mark in the <b>Final Mark</b> column (half marks allowed) – the total and grade update instantly.</p>
+      <div style="overflow-x:auto">
+      <table>
+        <thead><tr><th>#</th><th>Marking Criteria</th><th class="c">Max</th><th class="c">Auto Mark</th><th class="c">Final Mark</th></tr></thead>
+        <tbody id="sumBody"></tbody>
+        <tfoot><tr><td></td><td>TOTAL</td><td class="c">50</td><td class="c" id="autoTotal">0</td><td class="c" id="finalTotal">0</td></tr></tfoot>
+      </table>
+      </div>
+      <div class="actions noprint" style="justify-content:flex-start"><button class="btn ghost" id="resetMarks" type="button">↺ Reset to automatic marks</button></div>
+    </div>
+
+    <div class="card">
+      <h2>Detailed Marking &amp; Feedback</h2>
+      <p class="sub">See exactly why each mark was given.</p>
+      <div class="crit" id="critBody"></div>
+    </div>
+
+    <div class="card">
+      <h2>Strengths &amp; Next Steps</h2>
+      <p class="sub">What went well and what to practise next time.</p>
+      <div class="two">
+        <div class="box s"><h3>🌟 Strengths</h3><ul id="strengths"></ul></div>
+        <div class="box w"><h3>🎯 Work on</h3><ul id="improve"></ul></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Your Essay – Senses Highlighted</h2>
+      <p class="sub">Every sense word is colour-coded so you can see how well you used your five senses.</p>
+      <div class="stats" id="stats"></div>
+      <div class="legend" id="legend"></div>
+      <div class="essay-view" id="essayView"></div>
+    </div>
+
+    <div class="card">
+      <h2>How Marks Are Awarded</h2>
+      <p class="sub">The marking scheme used for this test (total 50 marks).</p>
+      <div style="overflow-x:auto">
+      <table>
+        <thead><tr><th>Criteria</th><th class="c">Marks</th><th>What the marker looks for</th></tr></thead>
+        <tbody>
+          <tr><td><b>Content &amp; Relevance</b></td><td class="c">10</td><td>Stays on the topic and uses submarine words (deck, tower, hull, crew, sonar, dive, sea…). 8+ different topic words earns full marks.</td></tr>
+          <tr><td><b>Structure &amp; Organisation</b></td><td class="c">10</td><td>Introduction says what and where (3) · describes the outside (2) · describes the inside (2) · conclusion shows feelings (3). Fewer than 3 paragraphs loses 2 marks.</td></tr>
+          <tr><td><b>Use of the Five Senses</b></td><td class="c">10</td><td>Up to 2 marks for each sense: sight, sound, touch, smell, taste. 2 different words = 2 marks, 1 word = 1 mark.</td></tr>
+          <tr><td><b>Vocabulary &amp; Descriptive Language</b></td><td class="c">10</td><td>Descriptive words (6) · similes/comparisons such as “like a…” or “as … as” (2) · variety of words, not repeating the same ones (2).</td></tr>
+          <tr><td><b>Grammar &amp; Punctuation</b></td><td class="c">5</td><td>Capital letters at the start of sentences (2) · capital “I” (1) · ends with full stop (1) · sensible sentence length (1).</td></tr>
+          <tr><td><b>Length</b></td><td class="c">5</td><td>150–200 words = 5 · close to the range = 3–4 · much too short or too long = 0–2.</td></tr>
+        </tbody>
+      </table>
+      </div>
+      <p class="note" style="margin-top:12px"><b>Grade scale:</b> A 80–100% · B 70–79% · C 60–69% · D 50–59% · E 40–49% · F below 40%</p>
+    </div>
+
+    <div class="card">
+      <h2>Teacher's Remarks</h2>
+      <p class="sub">Add any extra comment before printing.</p>
+      <textarea class="remark" id="teacherRemark" placeholder="Write the teacher's comment here…"></textarea>
+      <div class="sign"><div>Teacher's Signature</div><div>Date</div></div>
+    </div>
+
+    <div class="footer-actions">
+      <button class="btn gold" id="printBtn" type="button">🖨️ Print / Save as PDF</button>
+      <button class="btn ghost" id="newBtn" type="button">🔄 Start New Test</button>
+    </div>
+  </section>
+</div>
+
+<!-- Confirm modal -->
+<div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="mTitle">
+  <div class="dialog">
+    <div class="big" id="mIcon">🚀</div>
+    <h3 id="mTitle">Submit your essay?</h3>
+    <p id="mText">You will not be able to change your essay after submitting.</p>
+    <div class="row">
+      <button class="btn ghost" id="mNo" type="button">Keep writing</button>
+      <button class="btn primary" id="mYes" type="button">Yes, submit</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+"use strict";
+const $ = id => document.getElementById(id);
+const MAX = {content:10, structure:10, senses:10, vocab:10, mechanics:5, length:5};
+const NAMES = {content:"Content & Relevance", structure:"Structure & Organisation", senses:"Use of the Five Senses",
+               vocab:"Vocabulary & Descriptive Language", mechanics:"Grammar & Punctuation", length:"Length"};
+const ORDER = ["content","structure","senses","vocab","mechanics","length"];
+const LS_KEY = "cw_submarine_draft_v1";
+
+/* ---------- Word banks (word* = any word starting with this) ---------- */
+const BANK = {
+  sight:["see","saw","seen","seeing","look*","gaz*","watch*","shin*","glitter*","glow*","gleam*","sparkl*","blink*","flash*","bright*","dark*","grey","gray","silver*","blue","green","black","white","red","orange","yellow","metal*","steel*","glossy","huge","enormous","giant","gigantic","massive","tall","round*","curv*","tower","light*","lamp*","foam*","horizon","reflect*","colo*","dial*","screen*","flicker*","glisten*","shimmer*","stripe*","paint*","sleek","vast","misty","glass","visible","appear*","spot*","shadow*","sunlight","sunshine","clear","dazzl*"],
+  sound:["hear","heard","hearing","hum*","buzz*","roar*","rumbl*","ping*","beep*","echo*","splash*","whoosh*","hiss*","clang*","clank*","creak*","thump*","throb*","whir*","drone*","drum*","loud*","quiet*","silent","silence","noise*","noisy","sound*","whisper*","shout*","voice*","rattl*","bang*","boom*","crash*","gurgl*","bubbl*","murmur*","crackl*","siren*","horn*","whistl*","click*","tick*","wail*","bell*","chatter*","call*","cheer*","scream*","squeak*","squeal*"],
+  touch:["feel","felt","feeling","feels","cool","cold","warm*","hot","rough","smooth","slippery","wet","damp","chill*","shiver*","rock*","sway*","tremble*","trembling","vibrat*","shak*","tingl*","breeze","breezy","wind*","hard","solid","sticky","slimy","gritty","bumpy","touch*","soft","gentle","gently","heavy","sharp","freezing","icy","wobbl*","rippl*","bounc*","cramped","sweat*","goosebump*","grip*","gripp*","press*"],
+  smell:["smell*","smelt","scent*","odour*","odor*","aroma*","fragran*","stink*","stench","fresh","fume*","diesel","oil*","rust*","musty","sniff*","whiff","seaweed","fishy","fuel","metallic","petrol","perfume","stale","burnt","smok*"],
+  taste:["taste*","tasty","tasting","salt*","sweet*","sour","bitter","flavo*","lick*","tongue","delicious","spicy","tangy","bland","savour*","savor*","swallow*","lips","mouth","yummy"]
+};
+const SENSES = ["sight","sound","touch","smell","taste"];
+const SENSE_LABEL = {sight:"👁️ Sight",sound:"👂 Sound",touch:"✋ Touch",smell:"👃 Smell",taste:"👅 Taste"};
+const TOPIC = ["submarine*","sub","subs","deck*","dive*","diving","dived","dove","deep*","sea","seas","ocean*","water*","tower*","conning","periscope*","crew*","captain*","sailor*","engine*","sonar","porthole*","hull*","dial*","navy","naval","propeller*","torpedo*","wave*","bubble*","surface*","descend*","submerg*","underwater","radar","pressure","ballast","hatch*","ladder*","antenna*","aerial*","vessel*","boat*","ship*","depth*","fish","whale*","dolphin*","bridge","cabin*","control*","officer*","harbour","harbor","dock","port","anchor*","nuclear","fin","fins","rudder*"];
+const OUTSIDE = ["shape*","color*","colour*","tower*","conning","hull*","outside","exterior","deck*","fin","fins","propeller*","periscope*","antenna*","aerial*","metal*","steel*","cigar*","curved","painted","paint*","silver*","rudder*","flag*","surface*","stern","bow"];
+const INSIDE = ["inside","interior","porthole*","dial*","crew*","captain*","cabin*","control*","panel*","screen*","button*","switch*","lever*","wheel*","bunk*","ladder*","hatch*","corridor*","sailor*","engineer*","officer*","room*","compartment*","gauge*","monitor*","radar","sonar","below","windows","window","chair*","map*"];
+const FEEL = ["excited","excitement","exciting","thrilled","thrill*","happy","proud","amaz*","wonderful","brave","nervous","scared","afraid","joy*","adventure*","ahead","hope*","dream*","love*","wow","fascinat*","awesome","magnificent","glad","curious","eager","feel*","felt","wish*","believe","ready","cannot","can't","unforgettable","fantastic","marvel*","impressed","admire*","fear*","wait","memor*","never"];
+const ADJ = ["big","huge","enormous","gigantic","massive","giant","long","tall","shiny","glossy","gleaming","glittering","sparkling","silver","grey","gray","dark","deep","blue","cool","cold","warm","smooth","rough","thick","strong","powerful","mighty","loud","soft","gentle","quiet","calm","steady","bright","blinking","flashing","glowing","curved","rounded","narrow","tiny","small","round","heavy","metallic","steel","salty","fresh","misty","foamy","frothy","endless","vast","mysterious","exciting","thrilling","amazing","magnificent","wonderful","beautiful","brave","humming","rumbling","slippery","wet","damp","chilly","breezy","noisy","busy","cramped","cosy","spacious","crowded","shimmering","sleek","spotless","shining","sturdy","gloomy","eerie","silent","peaceful","icy","freezing","golden","sunny","glassy","wide","bold","colourful","colorful","hollow","dazzling","sharp","rusty","oily","polished","fierce","secret","lively","dim","rocky","bumpy","stormy","bubbly","fishy"];
+const SIMILE = [/\blike (a|an|the|some|giant|huge)\b/i, /\bas \w+ as\b/i, /\bas (if|though)\b/i, /\bseemed (like|to be)\b/i, /\bresembl/i];
+
+function matcher(list){
+  const ex=new Set(), pre=[];
+  list.forEach(w=>{ if(w.endsWith("*")) pre.push(w.slice(0,-1)); else ex.add(w); });
+  return t => ex.has(t) || pre.some(p=>t.startsWith(p));
+}
+const M = {}; SENSES.forEach(s=>M[s]=matcher(BANK[s]));
+const mTopic=matcher(TOPIC), mOut=matcher(OUTSIDE), mIn=matcher(INSIDE), mFeel=matcher(FEEL), mAdj=matcher(ADJ);
+
+const tokensOf = s => (s.toLowerCase().replace(/[’‘]/g,"'").match(/[a-z]+(?:'[a-z]+)?/g) || []);
+const uniq = a => [...new Set(a)];
+const hits = (toks,m) => uniq(toks.filter(m));
+const senseOf = t => SENSES.find(s=>M[s](t)) || null;
+
+/* ---------- Analysis ---------- */
+function analyse(text){
+  const clean = text.replace(/\r/g,"");
+  const toks = tokensOf(clean);
+  const words = toks.length;
+  const paras = clean.split(/\n/).map(s=>s.trim()).filter(Boolean);
+  const sents = (clean.replace(/\s+/g," ").match(/[^.!?]+[.!?]+["”']?|[^.!?]+$/g) || []).map(s=>s.trim()).filter(s=>/[a-z]/i.test(s));
+  const sentCount = sents.length;
+  const avgLen = sentCount ? words/sentCount : 0;
+  const uniqueWords = uniq(toks).length;
+  const ttr = words ? uniqueWords/words : 0;
+
+  const R = {}; const F = {}; // R = scores, F = feedback lists
+
+  /* 1. CONTENT & RELEVANCE */
+  const topicHits = hits(toks,mTopic);
+  const n = topicHits.length;
+  let c = n>=8?10 : n>=6?8 : n>=4?6 : n===3?4 : n>=1?2 : 0;
+  F.content = [];
+  F.content.push([n>=8, `Used <b>${n}</b> different submarine/sea words${n?` (${topicHits.slice(0,8).join(", ")}${n>8?"…":""})`:""}.`]);
+  if(words<30){ c=Math.min(c,2); F.content.push([false,"The essay is too short to show full understanding of the topic (capped at 2)."]); }
+  if(n<8) F.content.push([false,"Include more submarine words: <i>deck, hull, conning tower, periscope, crew, sonar, porthole, dive</i>."]);
+  R.content=c;
+
+  /* 2. STRUCTURE */
+  let intro, body, concl;
+  if(paras.length>=3){ intro=paras[0]; concl=paras[paras.length-1]; body=paras.slice(1,-1).join(" "); }
+  else { intro=sents.slice(0,2).join(" "); concl=sents.slice(-2).join(" "); body=clean; }
+  const iT=tokensOf(intro);
+  const introSub = iT.some(t=>/^(submarine|submarines|sub|ship|vessel|boat)$/.test(t));
+  const introWhere = iT.some(t=>/^(deck|sea|ocean|harbour|harbor|port|dock|standing|stood|stand|water|shore|navy|museum|trip|visit|visited)$/.test(t));
+  let st=0;
+  const introPts = (introSub?2:0)+(introWhere?1:0); st+=introPts;
+  const outH = hits(tokensOf(body),mOut), inH = hits(tokensOf(body),mIn);
+  const outPts = outH.length>=2?2:outH.length===1?1:0, inPts = inH.length>=2?2:inH.length===1?1:0;
+  st+=outPts+inPts;
+  const feelH = hits(tokensOf(concl),mFeel);
+  const cPts = feelH.length>=2?3:feelH.length===1?2:0; st+=cPts;
+  let paraPenalty=false;
+  if(paras.length<3 && words>0){ st=Math.max(0,st-2); paraPenalty=true; }
+  F.structure = [
+    [introPts===3, introPts===3 ? "Introduction tells <b>what</b> you describe and <b>where</b> you are." : (introPts? "Introduction names the submarine but not clearly <i>where</i> you are standing (deck, sea…)." : "No clear introduction about the submarine and where you saw it.")],
+    [outPts===2, outPts===2 ? `Describes the <b>outside</b> well (${outH.slice(0,4).join(", ")}).` : "Describe the outside more: shape, colour, conning tower, hull."],
+    [inPts===2, inPts===2 ? `Describes the <b>inside</b> well (${inH.slice(0,4).join(", ")}).` : "Describe the inside more: portholes, dials, crew, control room."],
+    [cPts===3, cPts===3 ? "Conclusion shows how you <b>feel</b> about the adventure." : "Finish by saying how you feel about the submarine and the adventure ahead."]
+  ];
+  F.structure.push([!paraPenalty, paraPenalty ? `Only ${paras.length} paragraph${paras.length===1?"":"s"} – use at least 3 (introduction, body, conclusion). <b>−2 marks</b>.` : `Well organised in <b>${paras.length}</b> paragraphs.`]);
+  R.structure=st;
+
+  /* 3. FIVE SENSES */
+  const prio={}; SENSES.forEach(s=>prio[s]=[]);
+  uniq(toks).forEach(t=>{ const s=senseOf(t); if(s) prio[s].push(t); });
+  let sp=0;
+  SENSES.forEach(s=>{ sp+= prio[s].length>=2?2 : prio[s].length===1?1:0; });
+  R.senses=sp;
+  F.senses = SENSES.map(s=>{
+    const k=prio[s].length;
+    return [k>=2, `${SENSE_LABEL[s]}: <b>${k}</b> word${k===1?"":"s"}${k?` (${prio[s].slice(0,5).join(", ")})`:""}${k>=2?"":" – add more."}`];
+  });
+
+  /* 4. VOCABULARY */
+  const adjH=hits(toks,mAdj); const a=adjH.length;
+  const adjPts = a>=10?6 : a>=7?5 : a>=5?4 : a>=3?3 : a>=1?1:0;
+  const simCount = SIMILE.reduce((x,r)=>x+(r.test(clean)?1:0),0);
+  const simPts = simCount>=2?2 : simCount===1?1:0;
+  const varPts = words<30?0 : ttr>=0.62?2 : ttr>=0.5?1:0;
+  R.vocab = adjPts+simPts+varPts;
+  F.vocab = [
+    [adjPts>=5, `<b>${a}</b> different describing words${a?` (${adjH.slice(0,8).join(", ")}${a>8?"…":""})`:""} → ${adjPts}/6.`],
+    [simPts===2, simPts? `Found <b>${simCount}</b> comparison${simCount>1?"s":""} (“like a…”, “as … as”) → ${simPts}/2.` : "No similes found. Try “as shiny as a mirror” or “like a giant whale”. → 0/2."],
+    [varPts===2, `Word variety ${(ttr*100).toFixed(0)}% (${uniqueWords} different words out of ${words}) → ${varPts}/2.`]
+  ];
+
+  /* 5. MECHANICS */
+  const capStart = sents.filter(s=>/^["“'(]*[A-Z]/.test(s)).length;
+  const capRatio = sentCount? capStart/sentCount : 0;
+  const capPts = capRatio>=0.9?2 : capRatio>=0.7?1:0;
+  const lowerI = (clean.match(/(^|[^A-Za-z'])i(?=[^A-Za-z]|$)/g)||[]).length;
+  const iPts = lowerI===0 && words>0 ? 1:0;
+  const endPts = /[.!?]["”']?\s*$/.test(clean.trim()) ? 1:0;
+  const longest = sents.reduce((m,s)=>Math.max(m,tokensOf(s).length),0);
+  const lenPts = (avgLen>=6 && avgLen<=24 && longest<=45)?1:0;
+  R.mechanics = (words?capPts+iPts+endPts+lenPts:0);
+  F.mechanics = [
+    [capPts===2, `<b>${capStart}</b> of ${sentCount} sentences begin with a capital letter → ${capPts}/2.`],
+    [iPts===1, iPts? "Capital “I” used correctly." : `Found ${lowerI} small “i” – the word “I” is always a capital.`],
+    [endPts===1, endPts? "Essay ends with proper punctuation." : "End your last sentence with a full stop (.), question mark or exclamation mark."],
+    [lenPts===1, lenPts? `Sentence length is sensible (average ${avgLen.toFixed(1)} words).` : (longest>45? "Some sentences are too long – break them up with full stops.":"Aim for sentences of about 8–20 words.")]
+  ];
+
+  /* 6. LENGTH */
+  let lp;
+  if(words>=150&&words<=200) lp=5;
+  else if((words>=130&&words<150)||(words>200&&words<=230)) lp=4;
+  else if((words>=100&&words<130)||(words>230&&words<=270)) lp=3;
+  else if((words>=60&&words<100)||(words>270&&words<=320)) lp=2;
+  else if(words>=20) lp=1; else lp=0;
+  R.length=lp;
+  F.length = [[lp===5, words>=150&&words<=200 ? `<b>${words}</b> words – exactly within the 150–200 target. 🎯` : words<150 ? `<b>${words}</b> words – ${150-words} more needed to reach 150.` : `<b>${words}</b> words – ${words-200} over the limit of 200. Trim extra details.`]];
+
+  return {words,paras:paras.length,sentCount,avgLen,uniqueWords,ttr,R,F,prio,simCount,adjH,topicHits,text:clean};
+}
+
+/* ---------- UI helpers ---------- */
+const esc = s => s.replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const fmtTime = s => String(Math.floor(s/60)).padStart(2,"0")+":"+String(s%60).padStart(2,"0");
+const todayISO = () => { const d=new Date(); return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"); };
+const niceDate = iso => { if(!iso) return "–"; const [y,m,d]=iso.split("-").map(Number); return new Date(y,m-1,d).toLocaleDateString(undefined,{day:"numeric",month:"long",year:"numeric"}); };
+const colorFor = p => p>=0.8?"#16a34a" : p>=0.6?"#0ea5e9" : p>=0.4?"#f59e0b" : "#e11d48";
+function gradeOf(p){
+  if(p>=80) return ["A","Excellent","Outstanding work! You wrote like a real author."];
+  if(p>=70) return ["B","Very Good","Great effort – a few small improvements will make it shine."];
+  if(p>=60) return ["C","Good","Good work. Keep adding detail and using all five senses."];
+  if(p>=50) return ["D","Fair","A fair attempt. Practise structure and descriptive words."];
+  if(p>=40) return ["E","Needs Improvement","Keep practising – follow the writing guide step by step."];
+  return ["F","Keep Practising","Don't give up! Re-read the guide and write a little more each day."];
+}
+
+/* bubbles */
+(function(){
+  const scene=document.querySelector(".scene");
+  for(let i=0;i<22;i++){
+    const b=document.createElement("span"); b.className="bubble";
+    const s=6+Math.random()*26;
+    b.style.cssText=`left:${Math.random()*100}%;width:${s}px;height:${s}px;animation-duration:${9+Math.random()*14}s;animation-delay:${-Math.random()*20}s`;
+    scene.appendChild(b);
+  }
+})();
+
+/* ---------- Test logic ---------- */
+const essay=$("essay"), bar=$("bar");
+let started=false, secs=0, tick=null, state=null, submitted=false;
+$("date").value=todayISO();
+
+function tickFn(){ secs++; $("timer").textContent=fmtTime(secs); }
+function startTimer(){ if(started) return; started=true; tick=setInterval(tickFn,1000); }
+function stopTimer(){ clearInterval(tick); tick=null; }
+function countWords(){ return tokensOf(essay.value).length; }
+
+/* ---- autosave ---- */
+let saveTimer=null, savedFlash=null;
+function saveDraft(){
+  if(submitted) return;
+  try{
+    localStorage.setItem(LS_KEY, JSON.stringify({
+      name:$("name").value, date:$("date").value, essay:essay.value, secs, started
+    }));
+  }catch(e){ /* storage unavailable – ignore */ }
+  const p=$("savedPill");
+  if(p){ p.classList.add("show"); clearTimeout(savedFlash); savedFlash=setTimeout(()=>p.classList.remove("show"),1400); }
+}
+function saveDraftSoon(){ clearTimeout(saveTimer); saveTimer=setTimeout(saveDraft,600); }
+function clearDraft(){ try{ localStorage.removeItem(LS_KEY); }catch(e){} }
+function restoreDraft(){
+  let d=null;
+  try{ d=JSON.parse(localStorage.getItem(LS_KEY)||"null"); }catch(e){ d=null; }
+  if(!d) return false;
+  if(d.name) $("name").value=d.name;
+  if(d.date) $("date").value=d.date;
+  if(typeof d.essay==="string" && d.essay.trim()) essay.value=d.essay;
+  if(typeof d.secs==="number" && d.secs>0){ secs=d.secs; $("timer").textContent=fmtTime(secs); }
+  if(d.started){ started=true; tick=setInterval(tickFn,1000); }
+  return true;
+}
+
+function updateCount(){
+  const w=countWords();
+  $("wc").textContent=w;
+  bar.style.width=Math.min(100,(w/200)*100)+"%";
+  let col="#f59e0b", msg;
+  if(w===0){ msg="Target: 150–200 words"; }
+  else if(w<150){ msg=`Keep going – ${150-w} more word${150-w===1?"":"s"} to reach 150`; }
+  else if(w<=200){ col="#16a34a"; msg="Perfect length! ✅"; }
+  else { col="#e11d48"; msg=`${w-200} word${w-200===1?"":"s"} over 200 – trim a little`; }
+  bar.style.background=col; $("wmsg").textContent=msg;
+}
+essay.addEventListener("input",()=>{ startTimer(); updateCount(); saveDraftSoon(); });
+$("name").addEventListener("input",saveDraftSoon);
+$("date").addEventListener("change",saveDraftSoon);
+
+$("clearBtn").addEventListener("click",()=>{
+  if(!essay.value.trim()) return;
+  openModal("🧹","Clear your essay?","All the text you have written will be deleted.","Keep it","Yes, clear",()=>{
+    essay.value=""; updateCount(); saveDraft(); essay.focus();
+  });
+});
+
+/* modal */
+let onYes=null, lastFocus=null;
+function openModal(icon,title,text,noLbl,yesLbl,cb){
+  lastFocus=document.activeElement;
+  $("mIcon").textContent=icon; $("mTitle").textContent=title; $("mText").textContent=text;
+  $("mNo").textContent=noLbl; $("mYes").textContent=yesLbl; onYes=cb;
+  $("modal").classList.add("open");
+  setTimeout(()=>$("mYes").focus(),30);
+}
+function closeModal(){
+  $("modal").classList.remove("open"); onYes=null;
+  if(lastFocus && lastFocus.focus) lastFocus.focus();
+  lastFocus=null;
+}
+$("mNo").addEventListener("click",closeModal);
+$("mYes").addEventListener("click",()=>{ const f=onYes; closeModal(); if(f) f(); });
+$("modal").addEventListener("click",e=>{ if(e.target.id==="modal") closeModal(); });
+document.addEventListener("keydown",e=>{
+  if(e.key==="Escape" && $("modal").classList.contains("open")) closeModal();
+  if(e.key==="Tab" && $("modal").classList.contains("open")){
+    const f=$("modal").querySelectorAll("button");
+    const first=f[0], last=f[f.length-1];
+    if(e.shiftKey && document.activeElement===first){ e.preventDefault(); last.focus(); }
+    else if(!e.shiftKey && document.activeElement===last){ e.preventDefault(); first.focus(); }
+  }
+});
+
+$("name").addEventListener("input",()=>{ $("name").classList.remove("err"); $("nameErr").style.display="none"; });
+
+$("submitBtn").addEventListener("click",()=>{
+  if(!$("name").value.trim()){
+    $("name").classList.add("err"); $("nameErr").style.display="block";
+    $("name").scrollIntoView({behavior:"smooth",block:"center"}); $("name").focus(); return;
+  }
+  const w=countWords();
+  if(w===0){ openModal("✍️","Nothing written yet","Please write your essay before submitting.","OK","Write now",closeModal); return; }
+  let text="You will not be able to change your essay after submitting.";
+  if(w<150) text=`You have written ${w} words – the target is 150–200. ${text}`;
+  else if(w>200) text=`You have written ${w} words – the target is 150–200. ${text}`;
+  openModal("🚀","Submit your essay?",text,"Keep writing","Yes, submit",doSubmit);
+});
+
+function doSubmit(){
+  stopTimer(); submitted=true;
+  const a=analyse(essay.value);
+  state={a, final:Object.assign({},a.R), name:$("name").value.trim(), date:$("date").value, secs};
+  document.body.classList.add("submitted");
+  clearDraft();
+  renderResult();
+  $("test").style.display="none"; $("result").style.display="block";
+  document.querySelector(".hero").style.display="none";
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+
+/* ---------- Render results ---------- */
+function totalOf(o){ return ORDER.reduce((s,k)=>s+Number(o[k]||0),0); }
+
+function renderResult(){
+  const {a,final}=state;
+  $("rName").textContent=state.name; $("rDate").textContent=niceDate(state.date); $("rTime").textContent=fmtTime(state.secs);
+
+  // summary table
+  $("sumBody").innerHTML = ORDER.map((k,i)=>`
+    <tr>
+      <td>${i+1}</td>
+      <td><b>${NAMES[k]}</b><div class="mini"><i id="mb_${k}" style="width:0"></i></div></td>
+      <td class="c">${MAX[k]}</td>
+      <td class="c"><b>${a.R[k]}</b></td>
+      <td class="c"><input class="sc" type="number" min="0" max="${MAX[k]}" step="0.5" id="in_${k}" value="${final[k]}"></td>
+    </tr>`).join("");
+  $("autoTotal").textContent=totalOf(a.R);
+  ORDER.forEach(k=>{
+    $("in_"+k).addEventListener("input",e=>{
+      let v=parseFloat(e.target.value); if(isNaN(v)) v=0;
+      v=Math.max(0,Math.min(MAX[k],v)); state.final[k]=v; refreshTotals();
+    });
+    $("in_"+k).addEventListener("blur",e=>{ e.target.value=state.final[k]; });
+  });
+
+  // detail cards
+  $("critBody").innerHTML = ORDER.map(k=>`
+    <div class="cc">
+      <header><b>${NAMES[k]}</b><span class="pts">${a.R[k]} / ${MAX[k]}</span></header>
+      <div class="mini"><i style="width:${a.R[k]/MAX[k]*100}%;background:${colorFor(a.R[k]/MAX[k])}"></i></div>
+      <ul>${a.F[k].map(([ok,t])=>`<li class="${ok?"":"no"}">${t}</li>`).join("")}</ul>
+    </div>`).join("");
+
+  // strengths & improvements
+  const tips={
+    content:"Use more submarine words (deck, hull, conning tower, periscope, crew, sonar).",
+    structure:"Write 3+ paragraphs: introduction → body (outside, then inside) → conclusion with feelings.",
+    senses:"Add words for all five senses – especially smell and taste, which are often forgotten.",
+    vocab:"Add colourful adjectives and at least two similes (“as shiny as…”, “like a…”).",
+    mechanics:"Check capital letters, the capital “I”, and end sentences with full stops.",
+    length:"Aim for 150–200 words – count as you write."
+  };
+  const good=[],bad=[];
+  ORDER.forEach(k=>{ const p=a.R[k]/MAX[k]; if(p>=0.8) good.push(`<b>${NAMES[k]}</b> (${a.R[k]}/${MAX[k]}) – excellent.`); else if(p<=0.6) bad.push(`<b>${NAMES[k]}</b>: ${tips[k]}`); });
+  $("strengths").innerHTML = (good.length?good:["You completed the test – keep practising to build strengths in every area!"]).map(x=>`<li>${x}</li>`).join("");
+  $("improve").innerHTML = (bad.length?bad:["Great job! Challenge yourself with even more original comparisons."]).map(x=>`<li>${x}</li>`).join("");
+
+  // stats
+  $("stats").innerHTML = [
+    [a.words,"Words"],[a.paras,"Paragraphs"],[a.sentCount,"Sentences"],[a.avgLen.toFixed(1),"Avg words / sentence"],[a.uniqueWords,"Different words"]
+  ].map(([v,l])=>`<div class="stat"><b>${v}</b><small>${l}</small></div>`).join("");
+
+  // legend with counts
+  $("legend").innerHTML = SENSES.map(s=>`<span class="chip ${s}">${SENSE_LABEL[s]} · ${a.prio[s].length}</span>`).join("");
+
+  // highlighted essay
+  let out="", last=0, re=/[A-Za-z]+(?:['’][A-Za-z]+)?/g, m;
+  const txt=a.text;
+  while((m=re.exec(txt))){
+    out+=esc(txt.slice(last,m.index));
+    const s=senseOf(m[0].toLowerCase().replace("’","'"));
+    out+= s? `<mark class="${s}" title="${s}">${esc(m[0])}</mark>` : esc(m[0]);
+    last=m.index+m[0].length;
+  }
+  out+=esc(txt.slice(last));
+  $("essayView").innerHTML=out;
+
+  refreshTotals(true);
+}
+
+function refreshTotals(first){
+  const {final}=state;
+  const tot=totalOf(final), pct=tot/50*100;
+  $("finalTotal").textContent=tot;
+  $("ringTotal").textContent=tot;
+  $("rPct").textContent=pct.toFixed(0)+"%";
+  const C=515.2, fg=$("ringFg");
+  const apply=()=>{ fg.style.strokeDashoffset=C*(1-tot/50); fg.setAttribute("stroke",colorFor(tot/50)); };
+  if(first){ setTimeout(apply,150); } else apply();
+  const [g,w,msg]=gradeOf(pct);
+  const gb=$("gradeBadge"); gb.textContent=g; gb.className="grade g"+g;
+  $("gradeWord").textContent=w; $("gradeMsg").textContent=msg;
+  ORDER.forEach(k=>{
+    const el=$("mb_"+k); if(el){ el.style.width=(final[k]/MAX[k]*100)+"%"; el.style.background=colorFor(final[k]/MAX[k]); }
+  });
+}
+
+$("resetMarks").addEventListener("click",()=>{
+  state.final=Object.assign({},state.a.R);
+  ORDER.forEach(k=>$("in_"+k).value=state.final[k]);
+  refreshTotals();
+});
+$("printBtn").addEventListener("click",()=>window.print());
+$("newBtn").addEventListener("click",()=>{
+  openModal("🔄","Start a new test?","This clears the current score sheet and essay.","Cancel","Yes, start new",()=>{
+    clearDraft(); location.reload();
+  });
+});
+
+/* ---------- boot ---------- */
+restoreDraft();
+updateCount();
+})();
+</script>
+</body>
+</html>
